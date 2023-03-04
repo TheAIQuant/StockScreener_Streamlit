@@ -13,16 +13,16 @@ Deep Learning Objective:
 
 ## Requirements
 Python 3.7 or higher
-Required packages are listed in the requirements.txt file
+Required packages are listed in the **requirements.txt** file
 
 ## Installation
 1. Clone the repository
 2. Navigate to the project directory
-3. Install the required packages by running pip install -r requirements.txt
-4. Run the app by running streamlit run app.py
+3. Install the required packages by running ```pip install -r requirements.txt```
+4. Run the app by running ```streamlit run app.py```
 
 ## Usage
-1. Open the app by running streamlit run app.py
+1. Open the app by running ```streamlit run app.py```
 2. Use the sidebar on the left to select the filters you wish to apply
 3. Click the "Apply Filters" button to apply the filters and display the list of filtered stocks
 4. Click on a stock's ticker symbol to view additional information or a chart of its price history
