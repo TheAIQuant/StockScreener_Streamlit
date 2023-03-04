@@ -25,7 +25,8 @@ Required packages are listed in the **requirements.txt** file
 1. Open the app by running ```streamlit run app.py```
 2. Use the sidebar on the left to select the filters you wish to apply
 3. Click the "Apply Filters" button to apply the filters and display the list of filtered stocks
-4. Click on a stock's ticker symbol to view additional information or a chart of its price history
+4. Use the "Train and Predict" button to train the model and apply the filters including prediction filter
+5. Click on a stock's ticker symbol to view additional information or a chart of its price history
 
 
 ## Contributions
