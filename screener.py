@@ -69,7 +69,6 @@ class StockScreener:
     # @st.cache_data
     # Predict whether new stocks will pass filters
     def predict_stocks(self, new_stocks):
-
         # Make predictions for each stock using its corresponding model
         predicted_stocks = []
         for stock in new_stocks:
@@ -145,7 +144,7 @@ class StockScreener:
             display_filtered_stocks(filtered_stocks, selected_metric, selected_indicator)
         
         # Create "Train and Predict Models" button
-        if st.sidebar.button("Train and Predict Model"):
+        if st.sidebar.button("Train and Predict"):
             # Train models for each filtered stock
             filtered_stocks = self.train_models()
             # Predict models
