@@ -166,6 +166,7 @@ def create_model(train_data):
     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
     return model
 
+
 def display_filtered_stocks(filtered_stocks, selected_metric, selected_indicator, models=None):
     # Display filtered stocks
     if len(filtered_stocks) == 0:
@@ -247,7 +248,7 @@ def get_sp_tickers():
 
     return sp500
 
-@st.cache_data
+@st.cache_data(ttl=24*3600)
 # Run screener for all sp500 tickers
 def get_sp500_stocks(sp500):
     

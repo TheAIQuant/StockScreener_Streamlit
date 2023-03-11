@@ -43,8 +43,9 @@ if __name__=='__main__':
 
     filters = []
     
-    sp500 = get_sp_tickers()
     # Get sp500 tickers and sectors
+    sp500 = get_sp_tickers()
+    # Create Stock objects
     sp500_stocks = get_sp500_stocks(sp500)
     # Screener
     screener = StockScreener(sp500_stocks, filters)

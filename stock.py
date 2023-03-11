@@ -179,7 +179,7 @@ def scrape_data(url, metric_aliases):
 
 ### CACHED FUNCTIONS ###
 
-@st.cache_data
+@st.cache_data(ttl=24*3600)
 def get_stock_price(ticker):
     try:
         url = f'https://finance.yahoo.com/quote/{ticker}'
@@ -195,13 +195,13 @@ def get_stock_price(ticker):
         return price
         
         
-@st.cache_data
+@st.cache_data(ttl=24*3600)
 def get_historical(ticker):
     stock = yf.Ticker(ticker)
     history = stock.history(start='2010-01-01', end='2023-03-01')
     return history
 
-@st.cache_data
+@st.cache_data(ttl=24*3600)
 def add_technical_indicators(data):
     # get historical stock prices
     prices = data
