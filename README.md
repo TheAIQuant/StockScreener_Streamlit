@@ -3,7 +3,7 @@
 Welcome to NASDAQ StockSight! This app offers an innovative screening tool designed for investors and traders to explore the NASDAQ index stocks. Utilizing the cutting-edge integration of Deep Learning through Keras and TensorFlow, our tool empowers users with intelligent filtering capabilities based on custom-defined criteria and predictive insights.
 
 ## 🚀 DEMO APP
-Experience the power of AI-driven stock screening: [Try DEMO APP Now](https://theaiquant-stockscreener-streamlit-app-17p87f.streamlit.app/)
+Experience the power of AI-driven stock screening: [Try DEMO APP Now](https://ai-nasdaq-stock-screener.streamlit.app/)
 
 ## 📊 Key Features
 - **Categorical Filtering**: Users can filter stocks by sector, price range, financial metrics, and technical indicators.

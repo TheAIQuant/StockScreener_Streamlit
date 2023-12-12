@@ -19,7 +19,7 @@ if __name__=='__main__':
     nasdaq = get_tickers()
     # Create Stock objects
     # Check the session state before loading data
-    if 'sp500_stocks' not in st.session_state:
+    if 'stocks' not in st.session_state:
         st.session_state.nasdaq_stocks = get_stocks(nasdaq)
 
     # Use session state within the app
