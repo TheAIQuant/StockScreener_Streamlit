@@ -159,6 +159,10 @@ def filter_technical_indicator(stock, indicator_name, operator, value):
     else:
         raise ValueError(f"Invalid operator: {operator}")
 
+
+### CACHED FUNCTIONS ###
+
+@st.cache_data(ttl=23*3600, show_spinner=False)
 def scrape_data(url, metric_aliases):
     page = requests.get(url, headers=get_headers())
     soup = BeautifulSoup(page.content, 'html.parser')
@@ -177,9 +181,7 @@ def scrape_data(url, metric_aliases):
     
     return data
 
-### CACHED FUNCTIONS ###
-
-@st.cache_data(ttl=24*3600)
+@st.cache_data(ttl=23*3600, show_spinner=False)
 def get_stock_price(ticker):
     try:
         url = f'https://finance.yahoo.com/quote/{ticker}'
@@ -191,17 +193,18 @@ def get_stock_price(ticker):
     
     except:
         print(f'Price not available for {ticker}')
-        price = 0.0
-        return price
+        # price = 0.0
+        # return price
+        raise
         
         
-@st.cache_data(ttl=24*3600)
+@st.cache_data(ttl=23*3600, show_spinner=False)
 def get_historical(ticker):
     stock = yf.Ticker(ticker)
-    history = stock.history(start='2010-01-01', end='2023-03-01')
+    history = stock.history(start='2015-01-01')
     return history
 
-@st.cache_data(ttl=24*3600)
+@st.cache_data(ttl=23*3600, show_spinner=False)
 def add_technical_indicators(data):
     # get historical stock prices
     prices = data

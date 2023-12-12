@@ -1,33 +1,34 @@
-# Stock Screener
-This is a stock screener that allows users to filter through a list of stocks based on various criteria such as sector, price, metric, and technical indicators.
+# NASDAQ StockSight: AI-Powered Stock Screener for Streamlit
 
-## Features
-1. Users can filter by sector, price range, metric, technical indicators and predictions
-2. The app displays a list of stocks that match the user's criteria
-3. Users can view additional information on a stock, such as its price and sector, by clicking on its ticker symbol
-4. Users can view a chart of a stock's price history by clicking on its ticker symbol
-5. Users can view charts of training metrics for each ticker symbol
+Welcome to NASDAQ StockSight! This app offers an innovative screening tool designed for investors and traders to explore the NASDAQ index stocks. Utilizing the cutting-edge integration of Deep Learning through Keras and TensorFlow, our tool empowers users with intelligent filtering capabilities based on custom-defined criteria and predictive insights.
 
-Deep Learning Objective:
-- Predict if the price will go up in the next 10 days
+## 🚀 DEMO APP
+Experience the power of AI-driven stock screening: [Try StockSight Now](https://theaiquant-stockscreener-streamlit-app-17p87f.streamlit.app/)
 
-## Requirements
-Python 3.7 or higher
-Required packages are listed in the **requirements.txt** file
+## 📊 Key Features
+- **Categorical Filtering**: Users can filter stocks by sector, price range, financial metrics, and technical indicators.
+- **Predictive Analysis**: Leverage AI to predict whether a stock's price will rise in the subsequent 10-day period.
+- **Stock Exploration**: Browse through a sortable list of stocks meeting the criteria with additional metric dimensions.
+- **Historical Insights**: View detailed price history charts and dissect patterns for each NASDAQ-listed ticker.
+- **Training Metrics Visualization**: Analyze the performance of underlying Deep Learning models with training metrics charts.
 
-## Installation
-1. Clone the repository
-2. Navigate to the project directory
-3. Install the required packages by running ```pip install -r requirements.txt```
-4. Run the app by running ```streamlit run app.py```
+## 🔧 Requirements
+- Python 3.8 or higher
 
-## Usage
-1. Open the app by running ```streamlit run app.py```
-2. Use the sidebar on the left to select the filters you wish to apply
-3. Click the "Apply Filters" button to apply the filters and display the list of filtered stocks
-4. Use the "Train and Predict" button to train the model and apply the filters including prediction filter
-5. Click on a stock's ticker symbol to view additional information or a chart of its price history
+All the necessary Python packages can be found in the **requirements.txt** file.
 
+## 💡 Installation & Setup
+1. Clone the repository: `git clone https://github.com/user/repo.git`
+2. Navigate to the cloned directory: `cd path_to_repo`
+3. Install dependencies: `pip install -r requirements.txt`
+4. Launch the app: `streamlit run app.py`
+
+## 🤖 How to Use the screener
+1. Launch the app: `streamlit run app.py`
+2. Utilize the sidebar to select your filtering preferences.
+3. Hit "Apply Filters" to materialize the list of stocks that match your input.
+4. Press "Train and Predict" to activate the model's training routine and integrate prediction-based filtering.
+5. Click on any ticker in the list to unveil a comprehensive stock profile with historical chart data.
 
 ## Contributions
 Contributions are welcome! Please create a pull request for any changes you would like to make.

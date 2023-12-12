@@ -39,15 +39,22 @@ class StockScreener:
                 filtered_stocks.append(stock)
         return filtered_stocks
     
-    # @st.cache_data
     # Train deep learning models on selected stocks
     def train_models(self):
-        training_models = st.empty()
-        training_models.write("Training Model for each Ticker...")
+        
         # Get data for training and testing
         filtered_stocks = self.apply_filters()
 
-        for stock in filtered_stocks:
+        # Create a progress bar and a text placeholder
+        progress = 0
+        progress_bar = st.progress(0)
+        training_models = st.empty()
+
+        for i, stock in enumerate(filtered_stocks):
+            training_models.markdown(f"**Training Models... {progress}%**<br>"
+                            f"**Processing Ticker {i+1}/{len(filtered_stocks)}: {stock.ticker}**",
+                            unsafe_allow_html=True)
+            
             train_data = stock.technical_indicators
             train_labels = stock.label
             if len(train_data) == 0:
@@ -59,20 +66,35 @@ class StockScreener:
 
             # Create and train model
             model = create_model(train_data)
-            history = model.fit(train_data, train_labels, epochs=100)
+            history = model.fit(train_data, train_labels, epochs=35)
             self.models[stock.ticker] = model, history
         
+            # Update the progress bar after training
+            progress= int((i + 1)/len(filtered_stocks) * 100)
+            progress_bar.progress(progress)
+    
+        progress_bar.empty()
         training_models.empty()
         
         return filtered_stocks
      
-    # @st.cache_data
     # Predict whether new stocks will pass filters
     def predict_stocks(self, new_stocks):
         # Make predictions for each stock using its corresponding model
         predicted_stocks = []
-        for stock in new_stocks:
+
+        # Create a progress bar and a text placeholder
+        progress = 0
+        progress_bar = st.progress(0)
+        predicting_models = st.empty()
+
+        for i, stock in enumerate(new_stocks):
             if stock.ticker in self.models:
+                # Show that it is processing the ticker
+                predicting_models.markdown(f"**Predicting Stocks... {progress}%**<br>"
+                                        f"**Processing Ticker {i+1}/{len(new_stocks)}: {stock.ticker}**",
+                                        unsafe_allow_html=True)
+
                 model, _ = self.models[stock.ticker]
                 new_features_aux = np.array(stock.today_technical_indicators).reshape(1, -1)
                 new_stock_data = self.scaler.fit_transform(new_features_aux)
@@ -81,42 +103,53 @@ class StockScreener:
                 if prediction > 0.5:
                     predicted_stocks.append(stock)
 
+                # Update the progress bar after prediction
+                progress = int((i + 1) / len(new_stocks) * 100)
+                progress_bar.progress(progress)
+
+        progress_bar.empty()
+        predicting_models.empty()
+
         return predicted_stocks
     
+    def reset_training(self):
+        st.session_state.trained = False
 
     # Create a web app for the stock screener
     def create_app(self):
+        # Initialize session state
+        if "trained" not in st.session_state:
+            st.session_state.trained = False
 
-        st.title(":grey[STOCK SCREENER]")
-
+        st.title(":grey[🚀NASDAQ 100 STOCK SCREENER 📈]")
 
         # Create sidebar for filtering options
         sector_list = sorted(list(set(stock.sector for stock in self.stocks)))
-        selected_sector = st.sidebar.selectbox("Sector", ["All"] + sector_list)
+        selected_sector = st.sidebar.selectbox("Sector", ["All"] + sector_list, on_change=self.reset_training)
 
-        min_price = st.sidebar.number_input("Min Price", value=0.0, step=0.01)
-        max_price = st.sidebar.number_input("Max Price", value=1000000.0, step=0.01)
+        min_price = st.sidebar.number_input("Min Price", value=0.0, step=0.01, on_change=self.reset_training)
+        max_price = st.sidebar.number_input("Max Price", value=1000000.0, step=0.01, on_change=self.reset_training)
 
         
         metric_list = sorted(list(set(metric for stock in self.stocks for metric in stock.metrics)))
-        selected_metric = st.sidebar.selectbox("Metric", ["All"] + metric_list)
+        selected_metric = st.sidebar.selectbox("Metric", ["All"] + metric_list, on_change=self.reset_training)
 
         metric_operator_list = [">", ">=", "<", "<=", "=="]
-        selected_metric_operator = st.sidebar.selectbox("Metric Operator", metric_operator_list)
+        selected_metric_operator = st.sidebar.selectbox("Metric Operator", metric_operator_list, on_change=self.reset_training)
 
-        metric_value = st.sidebar.text_input("Metric Value", "Enter value or the word price")
+        metric_value = st.sidebar.text_input("Metric Value", "Enter value or the word price", on_change=self.reset_training)
         try:
             metric_value = float(metric_value)
             print(metric_value)
         except:
             pass
         indicator_list = sorted(list(set(indicator for stock in self.stocks for indicator in stock.today_technical_indicators.keys())))
-        selected_indicator = st.sidebar.selectbox("Indicator", ["All"] + indicator_list)
+        selected_indicator = st.sidebar.selectbox("Indicator", ["All"] + indicator_list, on_change=self.reset_training)
 
         indicator_operator_list = [">", ">=", "<", "<=", "=="]
-        selected_indicator_operator = st.sidebar.selectbox("Indicator Operator", indicator_operator_list)
+        selected_indicator_operator = st.sidebar.selectbox("Indicator Operator", indicator_operator_list, on_change=self.reset_training)
 
-        indicator_value = st.sidebar.text_input("Indicator Value", "Enter value or the word price")
+        indicator_value = st.sidebar.text_input("Indicator Value", "Enter value or the word price", on_change=self.reset_training)
         try:
             indicator_value = float(indicator_value)
             print(indicator_value)
@@ -134,26 +167,19 @@ class StockScreener:
         new_filters.append(lambda stock: filter_price(stock, min_price, max_price))
         self.filters = new_filters
         
-        # Create "Apply Filters" button
+        # Provide feedback to the user instead of writing to the empty container
         if st.sidebar.button("Apply Filters"):
-
-            # Apply filters
+            # with st.spinner(text='Applying filters...'):
             filtered_stocks = self.apply_filters()
-            
-            # Display visualizations for filtered stocks
+            st.success('Filters applied!')
             display_filtered_stocks(filtered_stocks, selected_metric, selected_indicator)
-        
-        # Create "Train and Predict Models" button
+
+        # Update model training to check if models should be retrained
         if st.sidebar.button("Train and Predict"):
-            # Train models for each filtered stock
             filtered_stocks = self.train_models()
-            # Predict models
             predicted_stocks = self.predict_stocks(filtered_stocks)
-            
-            # Display visualizations for filtered stocks
             display_filtered_stocks(predicted_stocks, selected_metric, selected_indicator, self.models)
-
-
+            st.success('Training and prediction completed!')
 
 
 # Simple Dense model 
@@ -167,38 +193,53 @@ def create_model(train_data):
     return model
 
 
+def create_progress_bar():
+    progress = 0
+    progress_bar = st.progress(0)
+    displaying_stocks = st.empty()
+    return progress_bar, displaying_stocks
+
+def display_stock_metrics(stock, tab):
+    # Divide the metrics into three lists for the three columns
+    metrics = list(stock.metrics.items())
+    num_metrics = len(metrics)
+    col1_metrics = metrics[:num_metrics//3]
+    col2_metrics = metrics[num_metrics//3:(2*num_metrics)//3]
+    col3_metrics = metrics[(2*num_metrics)//3:]
+    # Create three columns inside each tab
+    col1, col2, col3 = tab.columns(3)
+
+    # Display the metrics in the three columns
+    for metric, value in col1_metrics:
+        col1.metric(metric, value)
+    for metric, value in col2_metrics:
+        col2.metric(metric, value)
+    for metric, value in col3_metrics:
+        col3.metric(metric, value)
+
+def plot_stock_data(stock, tab):
+    fig, ax = plt.subplots()
+    ax.plot(stock.data.index, stock.data["Close"])
+    ax.set_title(f"{stock.ticker} Close Price")
+    ax.set_xlabel("Date")
+    ax.set_ylabel("Price")
+    tab.pyplot(fig)
+    plt.close(fig)
+
 def display_filtered_stocks(filtered_stocks, selected_metric, selected_indicator, models=None):
-    # Display filtered stocks
-    if len(filtered_stocks) == 0:
-        st.write("No stocks match the specified criteria after Predicting.")
+    progress_bar, displaying_stocks = create_progress_bar()
+
+    num_stocks = len(filtered_stocks)
+    if num_stocks == 0:
+        st.write("No stocks match the specified criteria.")
     else:
         filtered_tickers = [stock.ticker for stock in filtered_stocks]
         tabs = st.tabs(filtered_tickers)
-        for n in range(len(tabs)):
-            # Divide the metrics into three lists for the three columns
-            metrics = list(filtered_stocks[n].metrics.items())
-            num_metrics = len(metrics)
-            col1_metrics = metrics[:num_metrics//3]
-            col2_metrics = metrics[num_metrics//3:(2*num_metrics)//3]
-            col3_metrics = metrics[(2*num_metrics)//3:]
-            # Create three columns inside each tab
-            col1, col2, col3 = tabs[n].columns(3)
-         
-            # Display the metrics in the three columns
-            for metric, value in col1_metrics:
-                col1.metric(metric, value)
-            for metric, value in col2_metrics:
-                col2.metric(metric, value)
-            for metric, value in col3_metrics:
-                col3.metric(metric, value)
-         
-            fig, ax = plt.subplots()
-            ax.plot(filtered_stocks[n].data.index, filtered_stocks[n].data["Close"])
-            ax.set_title(f"{filtered_stocks[n].ticker} Close Price")
-            ax.set_xlabel("Date")
-            ax.set_ylabel("Price")
-            tabs[n].pyplot(fig)                
-    
+        for n, stock in enumerate(filtered_stocks):
+            display_stock_metrics(stock, tabs[n])
+            plot_stock_data(stock, tabs[n])
+
+            # Your existing code to handle models...
             try:
                 model, history = models[filtered_stocks[n].ticker]
                 
@@ -215,58 +256,91 @@ def display_filtered_stocks(filtered_stocks, selected_metric, selected_indicator
                 ax[1].set_ylabel("Accuracy")
                 
                 # Show the plot in the streamlit app
-                tabs[n].pyplot(fig)           
+                tabs[n].pyplot(fig) 
+                plt.close(fig)          
          
             except:
                 tabs[n].write("")
-                
+
+            # Update the progress bar after each stock
+            progress = int((n + 1) / num_stocks * 100)
+            progress_bar.progress(progress)
+            displaying_stocks.markdown(f"**Creating DataFrame... {progress}%**<br>"
+                                       f"**Processing Stock {n+1}/{num_stocks}: {filtered_tickers[n]}**",
+                                       unsafe_allow_html=True)
+
     # Display table of filtered stocks info
     table_data = [[s.ticker, s.sector, s.price, s.metrics.get(selected_metric, "N/A"), s.today_technical_indicators.get(selected_indicator, "N/A"), float(s.prediction) if s.prediction != 0 else "N/A"] for s in filtered_stocks]
     table_columns = ["Ticker", "Sector", "Price", f"Metric: {selected_metric}", f"Indicator: {selected_indicator}", "Prediction" if any(s.prediction != 0 for s in filtered_stocks) else ""]
     st.write(pd.DataFrame(table_data, columns=table_columns))
 
+    # Clear the progress elements after loading
+    progress_bar.empty()
+    displaying_stocks.empty()
 
-## GET SP 500 STOCK DATA ##
 
-def get_sp_tickers():
+## GET STOCK DATA ##
+def get_tickers():
     # Get sp500 ticker and sector
-    url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
+    # url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
+    url = 'https://en.wikipedia.org/wiki/Nasdaq-100'
     response = requests.get(url)
     soup = BeautifulSoup(response.content, 'html.parser')
     
-    table = soup.find('table', {'class': 'wikitable sortable'})
+    table = soup.find('table', {'id': 'constituents'})
     rows = table.find_all('tr')[1:]  # skip the header row
     
-    sp500 = []
+    tickers_data = []
     
     for row in rows:
         cells = row.find_all('td')
-        ticker = cells[0].text.strip()
-        company = cells[1].text.strip()
-        sector = cells[3].text.strip()
-        sp500.append({'ticker': ticker, 'company': company, 'sector': sector})
+        ticker = cells[1].text.strip()
+        # ticker = ticker.replace('.', '-')
+        company = cells[0].text.strip()
+        sector = cells[2].text.strip()
+        tickers_data.append({'ticker': ticker, 'company': company, 'sector': sector})
 
-    return sp500
+    # tickers_data = tickers_data[:10] ## For testing purposes
 
-@st.cache_data(ttl=24*3600)
-# Run screener for all sp500 tickers
-def get_sp500_stocks(sp500):
-    
-    sp500_stocks = []
-    # Streamlit Text
-    stock_download = st.empty()
-    stock_issues = st.empty()
-    # Create Stock object for every stock with data
-    for stock in sp500:
-        stock_download.write(f"Downloading {stock['ticker']} Data")
+    return tickers_data
+
+
+def load_stocks(nasdaq, progress_bar, status_text):
+    stocks = []
+    for i, stock in enumerate(nasdaq):
         try:
             price = get_stock_price(stock['ticker'])
             data = get_historical(stock['ticker'])
-            sp500_stocks.append(Stock(stock['ticker'], stock['sector'], price, data))
-            stock_download.empty()
-        except:
-            stock_issues.write(f"There was an issue with {stock['ticker']}. ")
+            
+            if data is not None and len(data) > 0:
+                stocks.append(Stock(stock['ticker'], stock['sector'], price, data))
+
+            # Update the UI with the progress
+            progress = int((i + 1) / len(nasdaq) * 100)
+            progress_bar.progress(progress)
+            status_text.text(f"Loading stock data... {progress}%. Stock no. {i+1}/{len(nasdaq)}: {stock['ticker']}")
+        
+        except Exception as e:
+            st.error(f"There was an issue with {stock['ticker']}: No data found, symbol may be delisted")
     
-    stock_issues.empty()
+    # Return the loaded data
+    return stocks
+
+# Run screener for all sp500 tickers
+@st.cache_resource(ttl=23*3600, show_spinner=False)
+def get_stocks(tickers):
+    # Create empty placeholder elements for progress and status text
+    progress_bar = st.empty()
+    status_text = st.empty()
+
+    # Initialize the progress bar to zero
+    progress_bar.progress(0)
+
+    # Load the stocks and update the UI progress
+    stocks = load_stocks(tickers, progress_bar, status_text)
+
+    # Clear the progress elements after loading
+    progress_bar.empty()
+    status_text.empty()
     
-    return sp500_stocks
+    return stocks

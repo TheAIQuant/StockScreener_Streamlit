@@ -1,0 +1,23 @@
+# Python artifacts
+*.py[cod]
+*$
+__pycache__/
+
+# Virtual environments
+venv/
+.env
+
+# IDE settings
+.idea/
+.vscode/
+
+# Log and temporary files
+*.log
+tmp/
+
+# Build and distribution directories
+build/
+dist/
+
+# Database files
+*.sqlite
