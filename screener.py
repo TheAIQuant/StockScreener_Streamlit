@@ -283,6 +283,7 @@ def display_filtered_stocks(filtered_stocks, selected_metric, selected_indicator
 def get_tickers():
     # Get sp500 ticker and sector
     # url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
+    # Get nasdaq 100 ticker, company name and sector
     url = 'https://en.wikipedia.org/wiki/Nasdaq-100'
     response = requests.get(url)
     soup = BeautifulSoup(response.content, 'html.parser')
@@ -299,6 +300,7 @@ def get_tickers():
         company = cells[0].text.strip()
         sector = cells[2].text.strip()
         tickers_data.append({'ticker': ticker, 'company': company, 'sector': sector})
+
     # tickers_data = tickers_data[:10] ## For testing purposes
 
     return tickers_data
@@ -306,6 +308,8 @@ def get_tickers():
 
 def load_stocks(nasdaq, progress_bar, status_text):
     stocks = []
+    error_placeholder = st.empty()
+
     for i, stock in enumerate(nasdaq):
         try:
             price = get_stock_price(stock['ticker'])
@@ -320,8 +324,10 @@ def load_stocks(nasdaq, progress_bar, status_text):
             status_text.text(f"Loading stock data... {progress}%. Stock no. {i+1}/{len(nasdaq)}: {stock['ticker']}")
         
         except Exception as e:
-            st.error(f"There was an issue with {stock['ticker']}: No data found, symbol may be delisted")
-    
+            error_placeholder.error(f"There was an issue with {stock['ticker']}: No data found, symbol may be delisted")
+
+    # Clear the error message after all stocks are loaded
+    error_placeholder.empty()
     # Return the loaded data
     return stocks
 

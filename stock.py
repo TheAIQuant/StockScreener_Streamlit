@@ -161,22 +161,28 @@ def filter_technical_indicator(stock, indicator_name, operator, value):
 
 
 ### CACHED FUNCTIONS ###
+
 @st.cache_data(ttl=23*3600, show_spinner=False)
 def scrape_data(url, metric_aliases):
+    # print(url)
     page = requests.get(url, headers=get_headers())
     soup = BeautifulSoup(page.content, 'html.parser')
-    
     data = {}
     
-    sections = soup.find_all('section', {'data-test': 'qsp-statistics'})
-    for section in sections:
-        rows = section.find_all('tr')
-        for row in rows:
-            cols = row.find_all('td')
-            if len(cols) == 2:
-                metric = cols[0].text.strip()
-                if metric in metric_aliases:
-                    data[metric_aliases[metric]] = cols[1].text.strip()
+    container = soup.find('div', {'class': 'container yf-14j5zka', 'data-testid': 'stats-highlight'})
+    if container:
+        # print("Container found")
+        sections = container.find_all('section', {'data-testid': 'card-container'})
+        for section in sections:
+            rows = section.find_all('tr')
+            for row in rows:
+                cols = row.find_all('td')
+                if len(cols) == 2:
+                    metric = cols[0].text.strip()
+                    value = cols[1].text.strip()
+                    if metric in metric_aliases:
+                        data[metric_aliases[metric]] = value
+    
     return data
 
 @st.cache_data(ttl=23*3600, show_spinner=False)
