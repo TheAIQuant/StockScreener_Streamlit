@@ -185,16 +185,19 @@ def scrape_data(url, metric_aliases):
 def get_stock_price(ticker):
     try:
         url = f'https://finance.yahoo.com/quote/{ticker}'
+        # print(url)
         response = requests.get(url)
         soup = BeautifulSoup(response.content, 'html.parser')
-        data = soup.find('fin-streamer', {'data-symbol': ticker})
-        price = float(data['value'])
-        return price
-    
-    except:
-        print(f'Price not available for {ticker}')
-        # price = 0.0
-        # return price
+        data = soup.find('fin-streamer', {'data-symbol': ticker, 'data-field': 'regularMarketPrice'})
+        if data and 'data-value' in data.attrs:
+            # print(data['data-value'] + '\n')
+            price = float(data['data-value'])
+            return price
+        else:
+            print(f'Price not available for {ticker}')
+            raise
+    except Exception as e:
+        print(f'An error occurred: {e}')
         raise
         
         
