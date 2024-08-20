@@ -161,7 +161,6 @@ def filter_technical_indicator(stock, indicator_name, operator, value):
 
 
 ### CACHED FUNCTIONS ###
-
 @st.cache_data(ttl=23*3600, show_spinner=False)
 def scrape_data(url, metric_aliases):
     page = requests.get(url, headers=get_headers())
@@ -178,7 +177,6 @@ def scrape_data(url, metric_aliases):
                 metric = cols[0].text.strip()
                 if metric in metric_aliases:
                     data[metric_aliases[metric]] = cols[1].text.strip()
-    
     return data
 
 @st.cache_data(ttl=23*3600, show_spinner=False)

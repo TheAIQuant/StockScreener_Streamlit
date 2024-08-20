@@ -299,7 +299,6 @@ def get_tickers():
         company = cells[0].text.strip()
         sector = cells[2].text.strip()
         tickers_data.append({'ticker': ticker, 'company': company, 'sector': sector})
-
     # tickers_data = tickers_data[:10] ## For testing purposes
 
     return tickers_data
