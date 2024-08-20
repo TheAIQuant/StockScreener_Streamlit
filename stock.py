@@ -197,7 +197,7 @@ def get_stock_price(ticker):
             print(f'Price not available for {ticker}')
             raise
     except Exception as e:
-        print(f'An error occurred: {e}')
+        print(f'An error occurred for ticker {ticker}: {e}')
         raise
         
         
