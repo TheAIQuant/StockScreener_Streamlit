@@ -18,8 +18,8 @@ Experience the power of AI-driven stock screening: [Try DEMO APP Now](https://ai
 All the necessary Python packages can be found in the **requirements.txt** file.
 
 ## 💡 Installation & Setup
-1. Clone the repository: `git clone https://github.com/user/repo.git`
-2. Navigate to the cloned directory: `cd path_to_repo`
+1. Clone the repository: `git clone https://github.com/TheAIQuant/StockScreener_Streamlit.git`
+2. Navigate to the cloned directory: `cd StockScreener_Streamlit`
 3. Install dependencies: `pip install -r requirements.txt`
 4. Launch the app: `streamlit run app.py`
 
